@@ -1,0 +1,42 @@
+---
+- hosts: all
+  become: yes
+  become_method: sudo
+  tasks:
+  - name: Update OS
+    package:
+      name: '*'
+      state: latest
+
+  - name: Install packages (vim, wget, htop, tmux, php5, apache2)
+    apt:
+      name: ['vim', 'wget', 'htop', 'tmux', 'php5', 'apache2']
+      state: latest
+  
+  - name: Detele default index.html
+    shell: rm -f /var/www/html/index.html
+
+  - name: Copy php script
+    copy:
+      src: index.php
+      dest: /var/www/html/index.php
+
+  - name: Copy 000-default.conf
+    copy:
+      src: apache/000-default.conf
+      dest: /etc/apache2/sites-available/000-default.conf
+  
+  - name: Copy ports.conf
+    copy:
+      src: apache/ports.conf
+      dest: /etc/apache2/ports.conf
+
+  - name: Restart Apache2
+    service:
+      name: apache2
+      state: restarted
+
+  - name: Install packages (nginx)
+    apt:
+      name: ['nginx']
+      state: latest
